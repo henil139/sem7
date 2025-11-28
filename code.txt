@@ -44,6 +44,10 @@ model = Pipeline(steps=[
     ("preprocess", preprocessor),
     ("model", LogisticRegression())      # <--- MODEL_NAME
 ])
+model = Pipeline(steps=[
+    ("tfidf", TfidfVectorizer()),
+    ("model", LogisticRegression())   # <--- MODEL_NAME
+])
 
 # 8. Train
 model.fit(X_train, y_train)
