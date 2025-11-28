@@ -1,0 +1,56 @@
+# 1. Imports
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
+from sklearn.metrics import accuracy_score, classification_report, mean_squared_error
+
+from sklearn.linear_model import LogisticRegression   # <--- CHANGE MODEL HERE
+
+# 2. Load
+df = pd.read_csv("data.csv")
+
+# 3. Clean
+df = df.dropna()
+
+# 4. Split X & y
+X = df.drop("target", axis=1)
+y = df["target"]
+
+# 5. Encode target (for classification)
+# (If target is numeric for regression → remove this line)
+y = LabelEncoder().fit_transform(y)
+
+# 6. Encode categorical features
+cat_cols = X.select_dtypes(include="object").columns
+ohe = OneHotEncoder(sparse_output=False, handle_unknown="ignore")
+X_cat = ohe.fit_transform(X[cat_cols]) if len(cat_cols) else np.empty((len(X),0))
+
+# 7. Scale numeric features
+num_cols = X.select_dtypes(exclude="object").columns
+scaler = StandardScaler()
+X_num = scaler.fit_transform(X[num_cols]) if len(num_cols) else np.empty((len(X),0))
+
+# 8. Combine
+X_final = np.hstack([X_cat, X_num])
+
+# 9. Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X_final, y, test_size=0.2, random_state=42)
+
+# 10. Model
+model = LogisticRegression()   # <--- CHANGE MODEL HERE
+
+# 11. Train
+model.fit(X_train, y_train)
+
+# 12. Predict
+pred = model.predict(X_test)
+
+# 13. Evaluate
+# CLASSIFICATION:
+print("Accuracy:", accuracy_score(y_test, pred))
+print(classification_report(y_test, pred))
+
+# REGRESSION (if needed):
+# print(mean_squared_error(y_test, pred))
